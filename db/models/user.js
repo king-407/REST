@@ -2,40 +2,45 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const userSchema = new mongoose.Schema({
-  name: { type: String, trim: true },
-  age: {
-    type: Number,
-    default: 0,
-  },
-  email: {
-    unique: true,
-    type: String,
-    required: true,
-    trim: true,
-    lowercase: true,
-    validate(value) {
-      if (!validator.isEmail(value)) {
-        throw new Error("Email invalid");
-      }
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, trim: true },
+    age: {
+      type: Number,
+      default: 0,
     },
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6,
-
-    trim: true,
-  },
-  tokens: [
-    {
-      token: {
-        type: String,
-        required: true,
+    email: {
+      unique: true,
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Email invalid");
+        }
       },
     },
-  ],
-});
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+
+      trim: true,
+    },
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  }
+);
 userSchema.virtual("tasks", {
   ref: "Task",
   localField: "_id",

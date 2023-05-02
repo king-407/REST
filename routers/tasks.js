@@ -15,8 +15,22 @@ router.post("/tasks", auth, (req, res) => {
 });
 
 router.get("/tasks", auth, async (req, res) => {
+  const match = {};
+  if (req.query.completed) {
+    match.completed = req.query.completed === "true";
+  }
   try {
-    await req.user.populate("tasks");
+    await req.user.populate({
+      path: "tasks",
+      match, //filtering//
+      options: {
+        limit: parseInt(req.query.limit),
+        skip: parseInt(req.query.skip),
+        sort: {
+          createdAt: -1,
+        },
+      },
+    });
     res.send(req.user.tasks);
   } catch (e) {
     res.status(500).send(e);
@@ -61,13 +75,13 @@ router.delete("/tasks/:id", auth, async (req, res) => {
     const task = await Task.findByIdAndDelete({
       _id: req.params.id,
       owner: req.user._id,
-      _id,
     });
     if (!task) {
       return res.status(404).send();
     }
     res.send(task);
   } catch (e) {
+    console.log(e);
     res.status(500).send(e);
   }
 });
